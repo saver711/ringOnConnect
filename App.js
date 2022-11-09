@@ -3,6 +3,7 @@
 import {Home} from './screens/Home';
 import SplashScreen from 'react-native-splash-screen';
 import {useEffect} from 'react';
+import mobileAds from 'react-native-google-mobile-ads';
 
 ///
 /////////// HELPER VARIABLES & FUNCTIONS
@@ -22,6 +23,11 @@ const App = () => {
   ///
 
   useEffect(() => {
+    mobileAds()
+      .initialize()
+      .then(adapterStatuses => {
+        // console.log('Initialization complete!');
+      });
     SplashScreen.hide();
   }, []);
 

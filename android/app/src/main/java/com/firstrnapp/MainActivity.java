@@ -1,4 +1,4 @@
-package com.firstrnapp;
+package com.ringOnConnect;
 
 import com.facebook.react.ReactActivity;
 import com.facebook.react.ReactActivityDelegate;

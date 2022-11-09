@@ -1,4 +1,4 @@
-package com.firstrnapp.newarchitecture.modules;
+package com.ringOnConnect.newarchitecture.modules;
 
 import com.facebook.jni.HybridData;
 import com.facebook.react.ReactPackage;

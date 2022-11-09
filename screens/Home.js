@@ -1,11 +1,16 @@
 /* eslint-disable */
 /////////// IMPORTS
 ///
-
+import {
+  TestIds,
+  BannerAd,
+  BannerAdSize,
+  InterstitialAd,
+  AdEventType,
+} from 'react-native-google-mobile-ads';
 import React, {useEffect, useState} from 'react';
 import TrackPlayer from 'react-native-track-player';
 import {
-  Button,
   Image,
   SafeAreaView,
   ScrollView,
@@ -18,22 +23,35 @@ import NetInfo from '@react-native-community/netinfo';
 import LinearGradient from 'react-native-linear-gradient';
 import {hColors, hStyles} from '../helpers/hAssets';
 
-import { CButton } from '../components/ui/CButton';
+import {CButton} from '../components/ui/CButton';
 
 ///
 /////////// HELPER VARIABLES & FUNCTIONS
 ///
+// ads
+const bannerAdUnitId = __DEV__
+  ? TestIds.BANNER
+  : 'ca-app-pub-5441143845943034~1265183543';
+
+const interstitialAdUnitId = __DEV__
+  ? TestIds.INTERSTITIAL
+  : 'ca-app-pub-5441143845943034~1265183543';
+const interstitialAd = InterstitialAd.createForAdRequest(interstitialAdUnitId, {
+  requestNonPersonalizedAdsOnly: true,
+  keywords: ['fashion', 'clothing'],
+});
+// ./ads
+
 let networkUnsubscribe;
-let textToShow = 'Click on START to start our service.'
+let textToShow = 'Click on START to start our service.';
 const track1 = {
   url: require('../assets/appRingtone.mp3'), // Load media from the network
-  title: 'Avaritia',
-  artist: 'deadmau5',
-  album: 'while(1<2)',
-  genre: 'Progressive House, Electro House',
-  date: '2014-05-20T07:00:00+00:00', // RFC 3339
-  // artwork: "http://example.com/cover.png", // Load artwork from the network
-  duration: 36, // Duration in seconds
+  // title: 'Avaritia',
+  // artist: 'deadmau5',
+  // album: 'while(1<2)',
+  // genre: 'Progressive House, Electro House',
+  // date: '2014-05-20T07:00:00+00:00',
+  // duration: 36, // Duration in seconds
 };
 
 const startImg = require('../assets/start.png');
@@ -58,6 +76,8 @@ export const Home = () => {
   ///
   /////////// STATES
   ///
+  const [bannerAdFailedToLoad, bannerAdFailedToLoadUpdater] = useState(false);
+  const [interstitialAdLoaded, interstitialAdLoadedUpdater] = useState(false);
   const [playerInitialized, playerInitializedUpdater] = useState(false);
   /* APP STATES
   - notRunning
@@ -74,8 +94,22 @@ export const Home = () => {
   /////////// SIDE EFFECTS
   ///
   useEffect(() => {
+    // interstitialAd
+    const unsubscribe = interstitialAd.addAdEventListener(
+      AdEventType.LOADED,
+      () => {
+        interstitialAdLoadedUpdater(true);
+      },
+    );
+    // Start loading the interstitialAd straight away
+    interstitialAd.load();
+
+    // init player if not
     if (!playerInitialized) initThePlayer();
+
+    return unsubscribe;
   }, []);
+
   ///
 
   /////////// IF CASES
@@ -83,14 +117,15 @@ export const Home = () => {
   //imageToShow && textToShow
   if (appState.state === 'alreadyConnected') {
     imageToShow = alreadyConnectedImg;
-    textToShow = 'You are already connected to WIFI.'
+    textToShow = 'You are already connected to WIFI.';
   } else if (appState.state === 'connectionIsBack') {
     imageToShow = connectionIsBackImg;
-    textToShow = 'Hey 😉, Your connection is back. You can stop our service now.';
+    textToShow =
+      'Hey 😉, Your connection is back. You can stop our service now.';
   } else if (appState.state === 'serviceIsRunning') {
     imageToShow = serviceIsRunningImg;
-    textToShow = 'Take a break now and we will let you know when your WIFI connection is back';
-
+    textToShow =
+      'Take a break now and we will let you know when your WIFI connection is back';
   } else {
     imageToShow = startImg;
     textToShow = 'Click on START to start our service.';
@@ -99,13 +134,16 @@ export const Home = () => {
   /////////// FUNCTIONS & EVENTS
   ///
   const initThePlayer = async () => {
-    await TrackPlayer.setupPlayer();
     playerInitializedUpdater(true);
-    await TrackPlayer.add([track1]);
-    TrackPlayer.setRepeatMode(1);
+    try {
+      await TrackPlayer.setupPlayer();
+      await TrackPlayer.add([track1]);
+      TrackPlayer.setRepeatMode(1);
+    } catch (error) {}
   };
 
   const triggerFunctionality = () => {
+    showAd();
     NetInfo.refresh().then(state => {
       if (state.type === 'wifi' && state.isConnected) {
         appStateUpdater(prev => ({...prev, state: 'alreadyConnected'}));
@@ -118,10 +156,6 @@ export const Home = () => {
         state: 'serviceIsRunning',
       });
       networkUnsubscribe = NetInfo.addEventListener(state => {
-        // if (state.type === 'cellular' && appState.triggered) {
-        //   //msg
-        //   appStateUpdater(prev => ({...prev, state: 'alreadyConnected'}));
-        // }
 
         if (state.type === 'wifi' && state.isConnected) {
           appStateUpdater(prev => ({...prev, state: 'connectionIsBack'}));
@@ -130,7 +164,9 @@ export const Home = () => {
       });
     });
   };
+
   const resetFunctionality = () => {
+    showAd();
     TrackPlayer.pause();
     if (networkUnsubscribe !== undefined) networkUnsubscribe();
     appStateUpdater({
@@ -138,21 +174,22 @@ export const Home = () => {
       state: 'notRunning',
     });
   };
+
+  const showAd = () => {
+    if (interstitialAdLoaded) interstitialAd.show();
+    interstitialAdLoadedUpdater(false);
+    interstitialAd.load();
+  };
   ///
   /////////// RETURN & RETURN CONDITIONALLY
   ///
 
-  // const startImg = require('../assets/start.png');
-  // const alreadyConnectedImg
-  // const manReadingImg = require('../assets/manReading.png');
-  // const manSleepingImg = require('../assets/manSleeping.png');
-  // const womanRelaxingImg = require('../assets/womanRelaxing.png');
-  // const connectionIsBackImg = require('../assets/connectionIsBack.png');
   ///
   return (
     <>
       <StatusBar barStyle="default" animated={true} />
       <SafeAreaView style={{flex: 1}}>
+
         <LinearGradient
           // start={{x: 0, y: 0}}
           // end={{x: 1, y: 0}}
@@ -195,6 +232,16 @@ export const Home = () => {
             /> */}
           </View>
         </LinearGradient>
+        {!bannerAdFailedToLoad && (
+          <BannerAd
+            onAdFailedToLoad={() => bannerAdFailedToLoadUpdater(true)}
+            unitId={bannerAdUnitId}
+            size={BannerAdSize.FULL_BANNER}
+            requestOptions={{
+              requestNonPersonalizedAdsOnly: true,
+            }}
+          />
+        )}
       </SafeAreaView>
     </>
   );
@@ -204,8 +251,7 @@ const styles = StyleSheet.create({
   overallView: {
     alignItems: 'center',
   },
-  imageContainer:{
-
+  imageContainer: {
     maxHeight: 400,
   },
   image: {
@@ -221,9 +267,9 @@ const styles = StyleSheet.create({
     marginBottom: 50,
     width: '85%',
   },
-  text:{
+  text: {
     fontSize: 25,
     marginTop: 90,
-    color: hColors.text
-  }
+    color: hColors.text,
+  },
 });

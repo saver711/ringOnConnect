@@ -1,4 +1,4 @@
-package com.firstrnapp.newarchitecture.components;
+package com.ringOnConnect.newarchitecture.components;
 
 import com.facebook.jni.HybridData;
 import com.facebook.proguard.annotations.DoNotStrip;
