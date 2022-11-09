@@ -1,5 +1,5 @@
 {
-  "name": "firstRNApp",
+  "name": "ringOnConnect",
   "displayName": "Ring On Connect",
   "react-native-google-mobile-ads": {
     "android_app_id": "ca-app-pub-5441143845943034~1265183543"

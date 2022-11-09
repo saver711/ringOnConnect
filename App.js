@@ -1,5 +1,3 @@
-/* eslint-disable */
-
 import {Home} from './screens/Home';
 import SplashScreen from 'react-native-splash-screen';
 import {useEffect} from 'react';

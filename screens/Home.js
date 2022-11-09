@@ -43,7 +43,7 @@ const interstitialAd = InterstitialAd.createForAdRequest(interstitialAdUnitId, {
 // ./ads
 
 let networkUnsubscribe;
-let textToShow = 'Click on START to start our service.';
+let textToShow = 'Click on START to start our service';
 const track1 = {
   url: require('../assets/appRingtone.mp3'), // Load media from the network
   // title: 'Avaritia',
@@ -117,18 +117,18 @@ export const Home = () => {
   //imageToShow && textToShow
   if (appState.state === 'alreadyConnected') {
     imageToShow = alreadyConnectedImg;
-    textToShow = 'You are already connected to WIFI.';
+    textToShow = 'You are already connected to WIFI';
   } else if (appState.state === 'connectionIsBack') {
     imageToShow = connectionIsBackImg;
     textToShow =
-      'Hey 😉, Your connection is back. You can stop our service now.';
+      'Hey 😉, Your connection is back. You can stop our service now';
   } else if (appState.state === 'serviceIsRunning') {
     imageToShow = serviceIsRunningImg;
     textToShow =
       'Take a break now and we will let you know when your WIFI connection is back';
   } else {
     imageToShow = startImg;
-    textToShow = 'Click on START to start our service.';
+    textToShow = 'Click on START to start our service';
   }
   ///
   /////////// FUNCTIONS & EVENTS
